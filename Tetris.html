@@ -1,0 +1,373 @@
+<html>
+<style>
+     a{text-decoration:none;}
+  .header{
+  border:solid 1px;
+  margin-left : 70%;
+  padding:7px;
+  }
+   td{
+   padding: 5px;
+  }
+  body {
+   background-color: gray;
+  }
+  .gameBoard{
+    margin-left: 200px;
+    width:300px;
+    height:420px;
+    
+    position: absolute; 
+  }
+  .boardParts{
+    width:30px;
+    height:30px;
+    position:absolute;
+  }
+  .parts{
+    width:30px;
+    height:30px;
+    position:absolute;
+  }
+</style>
+<script> 
+
+var line = 10
+var ltetris = [
+	    [0, line+0, line*2+0, 1],
+	    [0, 1, 2, line+2],
+	    [1, line+1, line*2+1, line*2],
+	    [0, line+0, line+1, line+2]
+	  ]
+	var xltetris = [
+    [0,1,line+1,line*2+1],
+    [2,line+2,line+1,line],
+    [0,line,line*2,line*2+1],
+    [0,1,2,line]
+  ]
+
+	  var stetris = [
+      [line,line+1,1,2],
+	    [0,line,line+1,line*2+1],
+	    [line,line+1,1,2],
+	    [0,line,line+1,line*2+1] 
+	  ]
+
+
+	  var otetris = [
+	    [0,1,line,line+1],
+	    [0,1,line,line+1],
+	    [0,1,line,line+1],
+	    [0,1,line,line+1]
+	  ]
+	
+	  var itetris = [
+	    [0,line,line*2,line*3],
+      [line,line+1,line+2,line+3],
+	    [0,line,line*2,line*3],
+      [line,line+1,line+2,line+3]
+	  ]
+    var ttetris=[
+       [0,1,2,line+1]
+      ,[2,line+2,line*2+2,line*1+1]
+      ,[line*2,line*2+1,line*2+2,line+1]
+      ,[0,line,line*2,line+1]
+    ]
+    var xstetris=[
+      [0,1,line+1,line+2],
+      [1,line+1,line,line*2],  
+      [0,1,line+1,line+2],
+      [1,line+1,line,line*2]   
+    ]
+
+    var score = 0
+
+  var currentPosition = 4
+  var gameSpeed = 10
+  var part = document.createElement("div");
+  var parts=[] ;
+  var color = ["blue", "purple","gray","green","yellow","pink","red","black","white"]
+  var cChooser
+  var chooser 
+  // chooser = cChooser = Math.floor(Math.random()*5);
+  var tetris = []
+  var rotation = 0
+
+  function randomize(){
+    chooser = cChooser = Math.floor(Math.random()*7);
+    switch(chooser) {
+  case 0: tetris = itetris; break
+  case 1: tetris = ltetris;  break
+  case 2: tetris = otetris ; break
+  case 3: tetris = stetris ; break
+  case 4: tetris = ttetris ; break
+  case 5: tetris = xltetris ; break
+  case 6: tetris = xstetris ; break
+ }}
+ randomize()
+ var canMoveAll = false
+ var pause = true
+ var timer = window.setInterval( function(){
+  if(pause==false) {
+   undraw()
+   moveDown()
+   draw()
+   checkLine()
+   }
+  },1000)
+
+   
+ 
+  function startPause(){ 
+    if (pause==true) pause=false
+    else if (pause==false) pause=true
+  }
+   function setBoard() {
+     var j; var i;
+     for(j = 0; j<420;j+=30){
+       for (i = 0; i < 300; i+=30) {
+      part = document.createElement("div");
+        part.style.left = i + "px";
+        part.style.top = j + "px";
+        part.classList.add("parts");
+        part.style.backgroundColor = color[color.length-2] 
+        board.appendChild(part);
+        parts.push(part)
+     } 
+    }
+     for(i=0;i<300;i+=30) {
+      part = document.createElement("div");
+        part.style.left = i + "px";
+        part.style.top = j + "px";
+        part.classList.add("parts");
+        part.style.backgroundColor = "brown" 
+        board.appendChild(part);
+        parts.push(part)
+     }
+  }
+  function draw(){
+   // tetris=itetris
+      for(var j=0;j<tetris[rotation].length;j++){
+       parts[tetris[rotation][j]+currentPosition].style.backgroundColor= color[cChooser]
+
+  } 
+}
+function undraw(){
+      for(var j=0;j<tetris[rotation].length;j++){
+       parts[tetris[rotation][j]+currentPosition].style.backgroundColor= color[color.length-2]
+  } 
+}
+
+function key(e){
+    if (e.keyCode==37) {
+      moveLeft()
+    }
+    if (e.keyCode==38){
+    rotate()
+    }
+    if (e.keyCode==39){
+      moveRight()
+    }
+    if (e.keyCode==40){
+      undraw()
+      moveDown()
+      draw()
+    }
+  }
+  var canMoveDown = true
+
+  function moveDown(){
+    checkDown(rotation)
+    if (canMoveDown){
+    undraw()
+    currentPosition+=line
+    draw()
+  }  
+else overFlow()}
+
+  function checkDown(rotation){
+    for(var i=0;i<tetris[rotation].length;i++) {
+      var p =parts[tetris[rotation][i]+currentPosition+line]
+      if(p.style.backgroundColor!="black"&&p.style.backgroundColor!=color[chooser]){ 
+       canMoveDown=false 
+      }
+    }
+  }
+  function newPiece(){
+    if(canMoveDown==false){
+      cChooser = color.length-1
+      draw()
+      pause = true
+      currentPosition = 4
+     randomize()
+     draw()
+     canMoveDown=true
+     pause = false
+} 
+  }
+
+  function rotate(){
+    checkRotation()
+    if(canRotate){
+     undraw()
+     rotation++
+     if(rotation==4) rotation=0 
+      draw()
+    } 
+  }
+  var canRotate = true
+
+function checkRotation(){
+    canRotate = true
+    var r
+    if(rotation==3){r=0}
+     else r= rotation+1
+     checkRight(rotation)
+     if (canMoveRight==false){
+       canMoveRight=true
+       checkLeft(r)
+         if (canMoveLeft==false){
+           canMoveLeft=true
+           canRotate=false
+         } 
+       } 
+       canMoveRight=true
+    checkLeft(rotation)
+    if(canMoveLeft==false){
+      canMoveLeft==true
+     checkRight(r)
+     if (canMoveRight==false){
+       canRotate=false 
+       canMoveRight==true
+     }
+  }
+    canMoveLeft=true
+  if (tetris==itetris){
+    if (rotation==2||rotation==0){
+    for(var i=0;i<tetris[rotation].length;i++) {
+       if ((tetris[rotation][i]+currentPosition)%10==7){
+         undraw()
+         currentPosition-=1
+       }
+       else if((tetris[rotation][i]+currentPosition)%10==8){
+         undraw()
+         currentPosition-=2
+       }
+    }
+  }
+}
+      for(var i=0;i<tetris[r].length;i++) {
+       var p =parts[tetris[r][i]+currentPosition+line]
+        if(p.style.backgroundColor!="black"&&p.style.backgroundColor!=color[chooser]){ 
+          canRotate=false
+    }
+  }  
+}
+
+  function moveRight(){ 
+    checkRight(rotation)
+    if(canMoveRight) { 
+    undraw() 
+     currentPosition+=1
+      draw()
+  } canMoveRight = true }
+
+  var canMoveRight = true
+
+  function checkRight(rotation) {
+    for(var i=0;i<tetris[rotation].length;i++) {
+      var p = tetris[rotation][i]+currentPosition
+      var p1 = p+1
+     if(p==9||p==19||p==29||p==39||p==49||p==59||p==69||p==79||p==89||p==99||p==109||p==119||
+     (parts[p1].style.backgroundColor!="black"&&parts[p1].style.backgroundColor!=color[chooser])){canMoveRight=false}
+    }
+  }
+
+  function moveLeft(){
+   checkLeft(rotation)
+    if (canMoveLeft) {
+     undraw() 
+     currentPosition-=1
+      draw() }
+     canMoveLeft=true
+     }
+
+     var canMoveLeft=true
+  function checkLeft(rotation) {
+    for(var i=0;i<tetris[rotation].length;i++) {
+      var p = tetris[rotation][i]+currentPosition
+      var p1 = p-1
+     if(p%10==0||(parts[p1].style.backgroundColor!="black"&&parts[p1].style.backgroundColor!=color[chooser])){canMoveLeft=false } }
+  }
+
+
+
+//var canMoveAll = false
+  function checkLine() {
+ var j = parts.length-line -1;
+ var t = []
+ while(j>0){
+  var p =[j,j-1,j-2,j-3,j-4,j-5,j-6,j-7,j-8,j-9]
+ for(var x=0;x<p.length;x++){
+   t[x]=parts[p[x]].style.backgroundColor
+ }
+ if(t[0]=="white"&&t[1]=="white"&&t[2]=="white"&&t[3]=="white"&&t[4]=="white"&&
+  t[5]=="white"&&t[6]=="white"&&t[7]=="white"&&t[8]=="white"&&t[9]=="white"){
+    removeLine(p)
+ }
+ j-=line } 
+
+}
+function removeLine(p){
+  for(var y=0;y<p.length;y++){
+      parts[p[y]].style.backgroundColor="black" 
+    }
+    score+=10
+    document.getElementById("score").innerHTML="score: "+ score
+    // canMoveAll = true
+    moveAll(p)
+}
+
+  function moveAll(p){
+     var d = p[9]
+     for(var i = d; i>0; i--){
+      if (parts[i].style.backgroundColor=="white"){
+        parts[i].style.backgroundColor="black"
+        parts[i+line].style.backgroundColor="white"    
+    }
+  }
+ }
+  function overFlow(){
+    if (canMoveDown==false&&
+    (currentPosition<10)){
+    //  debugger
+      if(window.confirm("You lose, would you like to retry?")){
+        window.location.reload();
+    } 
+  } else newPiece()
+}
+
+</script>
+<table class="header">
+  <tr> 
+  <td style=" border-top: solid 10px blue;"> <a href="Project.html">Games </a> </td>
+  <td> <a href="AboutUs.html">About Us </a> </td>
+  <td> <a href="ContactUs.html">Contact Us </a> </td>
+  </tr>
+  </table>  </h1>
+  <body onkeydown="key(event)" onload="setBoard(),draw()" >
+    <table style="border: 1px solid black;">
+      <tr>
+        <td>
+          <div  class="gameBoard" id="board"></div>
+        </td>
+        <td>
+          <tr> <td> <button onclick="startPause()">Start/Pause </button> </td> </tr>
+          <tr> <td><div id="score"> score: 0 </div> </td></tr>
+        </td>
+      </tr>
+    </table>
+
+
+</body>
+</html>
